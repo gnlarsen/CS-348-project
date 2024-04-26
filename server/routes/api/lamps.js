@@ -15,7 +15,33 @@ router.get('/test', (req, res) => res.send('lamp route testing!'));
 // @desc    Get all lamps
 // @access  Public
 router.get('/', (req, res) => {
-  Lamp.find()
+    Lamp.find()
+      .then(lamps => res.json(lamps))
+      .catch(err => res.status(404).json({ nolampsfound: 'No Lamps found' }));
+});
+
+// @route   GET api/lamps/?minPrice=:minPrice&maxPrice=:maxPrice&lampType=:lampType
+// @desc    Get single lamp by id
+// @access  Public
+router.get('/filter/:minPrice/:maxPrice/:lampType', (req, res) => {
+  minPrice = req.params.minPrice;
+  maxPrice = req.params.maxPrice;
+  lamp_type = req.params.lampType;
+  var query = { price: { $gte: minPrice, $lte: maxPrice },
+                lamp_type: lamp_type};
+  if (maxPrice === "any" && lamp_type === "any") {
+    query = {price: { $gte: minPrice }};
+  }
+  else if (maxPrice === "any") {
+    query = { price: { $gte: minPrice },
+              lamp_type: lamp_type }
+  }
+  else if (lamp_type === "any") {
+    query = { price: { $gte: minPrice, $lte: maxPrice }}
+  }
+
+  console.log(query)
+  Lamp.find(query)
     .then(lamps => res.json(lamps))
     .catch(err => res.status(404).json({ nolampsfound: 'No Lamps found' }));
 });
@@ -24,6 +50,7 @@ router.get('/', (req, res) => {
 // @desc    Get single lamp by id
 // @access  Public
 router.get('/:id', (req, res) => {
+  console.log("id")
   Lamp.findById(req.params.id)
     .then(lamp => res.json(lamp))
     .catch(err => res.status(404).json({ nolampfound: 'No Lamp found' }));

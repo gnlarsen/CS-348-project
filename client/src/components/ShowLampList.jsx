@@ -17,24 +17,7 @@ const ShowLampList = (props) => {
       maxPrice: "",
       lampType: "",
     });
-
     const [options, setOptions] = useState([]);
-
-    axios
-          .get(`http://localhost:8082/api/lamps/`)
-          .then((res) => {
-            if (res.data[0]) {
-                console.log(res);
-            }
-            else {
-                console.log(res);
-                throw new Error("Lamps not found");
-            }
-
-          })
-          .catch((err) => {
-            console.error(err);
-          });
 
     const navigate = useNavigate();
 
@@ -72,7 +55,26 @@ const ShowLampList = (props) => {
     };
 
     const onSubmitFilter = (e) => {
+      e.preventDefault();
+      console.log(filter);
+      console.log(`http://localhost:8082/api/lamps/${filter.minPrice ? filter.minPrice : "0"}/${filter.maxPrice ? filter.maxPrice : "any"}/${filter.lampType ? filter.lampType : "any"}`)
+      
+      axios
+        .get(`http://localhost:8082/api/lamps/filter/${filter.minPrice ? filter.minPrice : "0"}/${filter.maxPrice ? filter.maxPrice : "any"}/${filter.lampType ? filter.lampType : "any"}`)
+        .then((res) => {
+          if (res.data[0]) {
+            console.log(res.data)
+            setLamps(res.data);
+          }
+          else {
+              console.log(res);
+              setLamps([]);
+          }
 
+        })
+        .catch((err) => {
+          console.error(err);
+        });
     };
 
     useEffect(() => {
@@ -80,6 +82,29 @@ const ShowLampList = (props) => {
         .get('http://localhost:8082/api/lamps')
         .then((res) => {
           setLamps(res.data);
+
+          if (res.data[0]) {
+            //console.log(res.data);
+            const lamp_types = [];
+            for (let i = 0; i < res.data.length; i++) {
+              if (!lamp_types.includes(res.data[i].lamp_type)) {
+                lamp_types.push(res.data[i].lamp_type)
+              }
+            }
+            options.length = 0;
+            for (let i = 0; i < lamp_types.length; i++) {
+              //console.log(lamp_types)
+              options.push({
+                label: lamp_types[i],
+                value: lamp_types[i],
+              })
+            }
+            console.log(options);
+          }
+          else {
+            console.log(res);
+            throw new Error("Lamp types not found");
+          }
         })
         .catch((err) => {
           console.log('Error from ShowLampList');
@@ -162,7 +187,7 @@ const ShowLampList = (props) => {
                 <div className="form-group">
                     <input
                       type="number"
-                      placeholder="Price Maximum (default $5000)"
+                      placeholder="Price Maximum (default: any)"
                       name="maxPrice"
                       className="form-control"
                       value={filter.maxPrice}
@@ -170,15 +195,20 @@ const ShowLampList = (props) => {
                     />
                 </div>
                 <div className="form-group">
-                    <input
-                      type="number"
-                      placeholder=""
-                      name=""
-                      className="form-control"
-                      value={filter.minPrice}
-                      onChange={onChangeFilter}
-                    />
+                  <Select
+                    placeholder="Lamp Type (default any)"
+                    options={options}
+                    name="lampType"
+                    value={filter.lampType}
+                    onChange={opt => setFilter({ ...filter, lampType: opt[0].value})}
+                  />
                 </div>
+                <button
+                type='submit'
+                className='btn btn-outline-warning float-right'
+              >
+                Submit Filter
+              </button>
 
               </form>
               <br />
