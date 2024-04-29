@@ -18,6 +18,7 @@ const ShowLampList = (props) => {
       lampType: "",
     });
     const [options, setOptions] = useState([]);
+    const [avgPrice, setAvgPrice] = useState(0);
 
     const navigate = useNavigate();
 
@@ -56,19 +57,26 @@ const ShowLampList = (props) => {
 
     const onSubmitFilter = (e) => {
       e.preventDefault();
-      console.log(filter);
-      console.log(`http://localhost:8082/api/lamps/${filter.minPrice ? filter.minPrice : "0"}/${filter.maxPrice ? filter.maxPrice : "any"}/${filter.lampType ? filter.lampType : "any"}`)
+      //console.log(filter);
+      //console.log(`http://localhost:8082/api/lamps/${filter.minPrice ? filter.minPrice : "0"}/${filter.maxPrice ? filter.maxPrice : "any"}/${filter.lampType ? filter.lampType : "any"}`)
       
       axios
         .get(`http://localhost:8082/api/lamps/filter/${filter.minPrice ? filter.minPrice : "0"}/${filter.maxPrice ? filter.maxPrice : "any"}/${filter.lampType ? filter.lampType : "any"}`)
         .then((res) => {
           if (res.data[0]) {
-            console.log(res.data)
+            //console.log(res.data)
             setLamps(res.data);
+
+            var price = 0;
+            for (let i = 0; i < res.data.length; i++) {
+              price += res.data[i].price.$numberDecimal/res.data.length;
+            }
+            setAvgPrice(price);
           }
           else {
               console.log(res);
               setLamps([]);
+              setAvgPrice(0);
           }
 
         })
@@ -85,12 +93,17 @@ const ShowLampList = (props) => {
 
           if (res.data[0]) {
             //console.log(res.data);
+            var price = 0;
             const lamp_types = [];
             for (let i = 0; i < res.data.length; i++) {
+              price += res.data[i].price.$numberDecimal/res.data.length
               if (!lamp_types.includes(res.data[i].lamp_type)) {
                 lamp_types.push(res.data[i].lamp_type)
               }
             }
+
+            setAvgPrice(price);
+
             options.length = 0;
             for (let i = 0; i < lamp_types.length; i++) {
               //console.log(lamp_types)
@@ -99,7 +112,7 @@ const ShowLampList = (props) => {
                 value: lamp_types[i],
               })
             }
-            console.log(options);
+            //console.log(options);
           }
           else {
             console.log(res);
@@ -107,6 +120,7 @@ const ShowLampList = (props) => {
           }
         })
         .catch((err) => {
+          console.error(err)
           console.log('Error from ShowLampList');
         });
     }, []);
@@ -211,6 +225,8 @@ const ShowLampList = (props) => {
               </button>
 
               </form>
+              <br />
+              Average price = ${Math.round(avgPrice * 100) / 100}
               <br />
               <hr />
             </div>
