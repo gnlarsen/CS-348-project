@@ -50,7 +50,7 @@ router.get('/filter/:minPrice/:maxPrice/:lampType', (req, res) => {
 // @desc    Get single lamp by id
 // @access  Public
 router.get('/:id', (req, res) => {
-  console.log("id")
+  //console.log("id")
   Lamp.findById(req.params.id)
     .then(lamp => res.json(lamp))
     .catch(err => res.status(404).json({ nolampfound: 'No Lamp found' }));
