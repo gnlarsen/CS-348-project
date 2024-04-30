@@ -10,7 +10,7 @@ const LampSchema = new mongoose.Schema({
   },
   price: {
     type: Decimal128,
-    required: true
+    required: true,
   },
   description: {
     type: String
@@ -29,4 +29,5 @@ const LampSchema = new mongoose.Schema({
   versionKey: false
 });
 
+LampSchema.index({ lamp_type: 1, price: 1 })
 module.exports = Lamp = mongoose.model('lamp', LampSchema);

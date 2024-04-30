@@ -138,6 +138,7 @@ const ShowLampList = (props) => {
               <br />
               <h2 className='display-4 text-center'>Lamp List</h2>
             </div>
+            <br />
   
             <div className='col-md-11'>
               <Link
