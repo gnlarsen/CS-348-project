@@ -30,7 +30,7 @@ router.get('/filter/:minPrice/:maxPrice/:lampType', (req, res) => {
   var query = { price: { $gte: minPrice, $lte: maxPrice },
                 lamp_type: lamp_type};
   if (maxPrice === "any" && lamp_type === "any") {
-    query = {price: { $gte: minPrice }};
+    query = { price: { $gte: minPrice }};
   }
   else if (maxPrice === "any") {
     query = { price: { $gte: minPrice },
@@ -40,7 +40,7 @@ router.get('/filter/:minPrice/:maxPrice/:lampType', (req, res) => {
     query = { price: { $gte: minPrice, $lte: maxPrice }}
   }
 
-  console.log(query)
+  //console.log(query)
   Lamp.find(query)
     .then(lamps => res.json(lamps))
     .catch(err => res.status(404).json({ nolampsfound: 'No Lamps found' }));
